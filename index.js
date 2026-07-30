@@ -47,6 +47,12 @@ app.post("/add", async (req, res) => {
       params: { title: title, fields: "title,author_name,cover_i", limit: 1 },
     });
 
+    if (response.data.docs.length === 0) {
+      return res
+        .status(404)
+        .send("No book found with that title. Please try again.");
+    }
+
     const book = response.data.docs[0];
 
     const bookTitle = book.title;
@@ -66,24 +72,44 @@ app.post("/add", async (req, res) => {
 });
 
 app.get("/edit/:id", async (req, res) => {
-  const result = await db.query("SELECT * FROM books WHERE id = $1", [
-    req.params.id,
-  ]);
-  res.render("edit.ejs", { book: result.rows[0] });
+  try {
+    const result = await db.query("SELECT * FROM books WHERE id = $1", [
+      req.params.id,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).send("Book not found.");
+    }
+
+    res.render("edit.ejs", { book: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("There is a problem loading the book.");
+  }
 });
 
 app.post("/edit", async (req, res) => {
   const { id, rating, notes, date_read } = req.body;
-  await db.query(
-    "UPDATE books SET rating = $1, notes = $2, date_read = $3 WHERE id = $4",
-    [rating, notes, date_read, id],
-  );
-  res.redirect("/");
+  try {
+    await db.query(
+      "UPDATE books SET rating = $1, notes = $2, date_read = $3 WHERE id = $4",
+      [rating, notes, date_read, id],
+    );
+    res.redirect("/");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("There is a problem updating the book.");
+  }
 });
 
 app.post("/delete", async (req, res) => {
-  await db.query("DELETE FROM books WHERE id = $1", [req.body.id]);
-  res.redirect("/");
+  try {
+    await db.query("DELETE FROM books WHERE id = $1", [req.body.id]);
+    res.redirect("/");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("There is a problem deleting the book.");
+  }
 });
 
 app.listen(port, () => {

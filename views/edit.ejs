@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit review</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div>
+        <p class="eyebrow">Reading log</p>
+        <h1 class="site-title">Edit review</h1>
+      </div>
+      <a class="btn btn-ghost" href="/">Back to list</a>
+    </div>
+  </header>
+
+  <main class="wrap main">
+    <div class="form-card edit-layout">
+      <aside class="edit-cover">
+        <% if (book.cover_id) { %>
+          <img src="https://covers.openlibrary.org/b/id/<%= book.cover_id %>-L.jpg" alt="Cover of <%= book.title %>">
+        <% } else { %>
+          <div class="cover-fallback"><span><%= book.title %></span></div>
+        <% } %>
+        <h2 class="edit-title"><%= book.title %></h2>
+        <p class="book-author"><%= book.author %></p>
+      </aside>
+
+      <form action="/edit" method="POST" class="form">
+        <input type="hidden" name="id" value="<%= book.id %>">
+
+        <div class="field-row">
+          <div class="field">
+            <label for="rating">Your rating</label>
+            <select id="rating" name="rating">
+              <% for (let i = 5; i >= 1; i--) { %>
+                <option value="<%= i %>" <%= book.rating === i ? 'selected' : '' %>><%= i %></option>
+              <% } %>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="date_read">Date read</label>
+            <input type="date" id="date_read" name="date_read"
+              value="<%= book.date_read ? new Date(book.date_read).toISOString().split('T')[0] : '' %>">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="notes">Your notes</label>
+          <textarea id="notes" name="notes" rows="6"><%= book.notes %></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+          <a href="/" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+</body>
+</html>

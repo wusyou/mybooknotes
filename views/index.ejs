@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Book Notes</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div>
+        <p class="eyebrow">Reading log</p>
+        <h1 class="site-title">My Book Notes</h1>
+      </div>
+      <a class="btn btn-primary" href="/add">Add a book</a>
+    </div>
+  </header>
+
+  <main class="wrap main">
+    <div class="toolbar">
+      <span class="toolbar-label">Sort by</span>
+      <nav class="sort-tabs">
+        <a href="/?sort=recency" data-sort="recency" class="sort-tab">Recently read</a>
+        <a href="/?sort=rating" data-sort="rating" class="sort-tab">Rating</a>
+        <a href="/?sort=title" data-sort="title" class="sort-tab">Title</a>
+      </nav>
+    </div>
+
+    <% if (books.length === 0) { %>
+      <div class="empty">
+        <h2>No books yet</h2>
+        <p>Add the first book you have read to start your log.</p>
+        <a class="btn btn-primary" href="/add">Add a book</a>
+      </div>
+    <% } else { %>
+
+      <ul class="book-grid">
+        <% books.forEach(book => { %>
+          <li class="book-card">
+            <div class="cover">
+              <% if (book.cover_id) { %>
+                <img
+                  src="https://covers.openlibrary.org/b/id/<%= book.cover_id %>-L.jpg"
+                  alt="Cover of <%= book.title %>"
+                  loading="lazy">
+              <% } else { %>
+                <div class="cover-fallback"><span><%= book.title %></span></div>
+              <% } %>
+            </div>
+
+            <div class="book-body">
+              <h2 class="book-title"><%= book.title %></h2>
+              <p class="book-author"><%= book.author %></p>
+
+              <div class="rating" aria-label="Rating: <%= book.rating %> out of 5">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <span class="star <%= i <= book.rating ? 'is-filled' : '' %>">&#9733;</span>
+                <% } %>
+              </div>
+
+              <% if (book.date_read) { %>
+                <p class="book-date">
+                  Read <%= new Date(book.date_read).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                </p>
+              <% } %>
+
+              <% if (book.notes) { %>
+                <p class="book-notes"><%= book.notes %></p>
+              <% } %>
+
+              <div class="card-actions">
+                <a class="btn btn-ghost" href="/edit/<%= book.id %>">Edit</a>
+
+                <form class="js-delete" action="/delete" method="POST">
+                  <input type="hidden" name="id" value="<%= book.id %>">
+                  <button class="btn btn-danger" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+
+          </li>
+        <% }) %>
+      </ul>
+
+    <% } %>
+
+  </main>
+
+  <script src="/scripts/main.js"></script>
+</body>
+</html>
